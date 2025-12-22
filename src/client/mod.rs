@@ -1,7 +1,7 @@
 use crate::tron::protocol::wallet_client::WalletClient;
 
 #[derive(Debug, Clone)]
-struct GrpcClient {
+pub struct GrpcClient {
     inner: WalletClient<tonic::transport::Channel>,
 }
 
