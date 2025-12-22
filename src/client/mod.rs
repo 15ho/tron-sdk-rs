@@ -21,38 +21,12 @@ impl GrpcClient {
 
 #[cfg(test)]
 mod test {
-    use tokio::{self, sync::OnceCell};
-
-    use crate::{client::GrpcClient, tron::protocol::Account, utils};
-    use tonic::Request;
-
-    static GRPC_CLIENT: OnceCell<GrpcClient> = OnceCell::const_new();
+    use crate::client::GrpcClient;
 
     async fn get_client() -> GrpcClient {
-        GRPC_CLIENT
-            .get_or_init(|| async {
-                GrpcClient::new("https://grpc.shasta.trongrid.io:50051")
-                    .await
-                    .expect("grpc connect err")
-            })
+        GrpcClient::new("https://grpc.shasta.trongrid.io:50051")
             .await
-            .clone()
-    }
-
-    #[tokio::test]
-    async fn test_new_grpc_client() {
-        // https://developers.tron.network/docs/networks#shasta-testnet
-        let mut cli = get_client().await;
-        let mut acc_req = Account::default();
-        acc_req.address = utils::bs58::decode_address("TE9t1ML5HujuVkGD8qTrWoDbTtMq8LWgzi")
-            .expect("decode address err");
-        let resp = cli
-            .client()
-            .get_account(Request::new(acc_req))
-            .await
-            .expect("get balance err");
-
-        println!("balance resp: {:?}", resp);
+            .expect("grpc connect err")
     }
 
     #[tokio::test]
