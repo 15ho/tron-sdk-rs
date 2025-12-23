@@ -1,6 +1,12 @@
 use sha2::{Digest, Sha256};
 
-pub fn decode(data: &str) -> Result<Vec<u8>, String> {
+pub fn encode<I: AsRef<[u8]>>(data: I) -> String {
+    bs58::encode(data)
+        .with_alphabet(bs58::Alphabet::BITCOIN)
+        .into_string()
+}
+
+pub fn decode<I: AsRef<[u8]>>(data: I) -> Result<Vec<u8>, String> {
     bs58::decode(data)
         .with_alphabet(bs58::Alphabet::BITCOIN)
         .into_vec()
@@ -41,6 +47,17 @@ pub fn decode_address(address: &str) -> Result<Vec<u8>, String> {
     }
 
     return Ok(dec_address.to_vec());
+}
+
+pub fn encode_address(mut public_key: Vec<u8>) -> String {
+    public_key.insert(0, 0x41);
+
+    let h = Sha256::digest(&public_key);
+    let hh = Sha256::digest(h);
+
+    let mut checksum = hh[..4].to_vec();
+    public_key.append(&mut checksum);
+    encode(public_key)
 }
 
 #[cfg(test)]

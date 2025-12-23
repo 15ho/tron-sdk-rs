@@ -54,10 +54,33 @@ impl GrpcClient {
         }
         Ok(bigint::from_bytes(&call_res[0]))
     }
+
+    pub async fn trc20_transfer(
+        &mut self,
+        from: &str,
+        to: &str,
+        contract: &str,
+        amount: BigInt,
+        fee_limit: i64,
+    ) -> Result<Response<TransactionExtention>, Status> {
+        let to_address = Self::into_address(to)?;
+
+        // function transfer(address _to, uint256 _value) public returns (bool success)
+        let call_data = format!(
+            "a9059cbb{:0>64}{:0>64}",
+            hex::encode(to_address),
+            hex::encode(amount.to_string())
+        );
+
+        self.contract_call(Some(from), contract, call_data, Some(fee_limit))
+            .await
+    }
 }
 
 #[cfg(test)]
 mod test {
+    use num_bigint::BigInt;
+
     use crate::client::get_client;
 
     #[tokio::test]
@@ -70,8 +93,25 @@ mod test {
             )
             .await
             .expect("get trc20 balance err");
-
         // TODO: assert
         println!("trc20 balance: {:?}", trx_balance);
+    }
+
+    #[tokio::test]
+    async fn test_trc20_transfer() {
+        let mut cli = get_client().await;
+        let ext = cli
+            .trc20_transfer(
+                "TFysCB929XGezbnyumoFScyevjDggu3BPq",
+                "TE9t1ML5HujuVkGD8qTrWoDbTtMq8LWgzi",
+                "TLpMxTc52iuiDew4Qy7GYgpDggtBHbWejM",
+                BigInt::from(100),
+                100000,
+            )
+            .await
+            .expect("create trc20 transfer tx err");
+
+        // TODO: assert
+        println!("trc20 transfer tx: {:?}", ext);
     }
 }
