@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 bs58 = "0.5.1"
+hex = "0.4.3"
+num-bigint = "0.4.6"
 prost = "0.14.1"
 prost-types = "0.14.1"
 sha2 = "0.10.9"
