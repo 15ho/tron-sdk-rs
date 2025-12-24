@@ -2,6 +2,15 @@
 name = "tron-sdk-rs"
 version = "0.0.1"
 edition = "2024"
+rust-version = "1.92"
+authors = ["15ho <fifteenho@163.com>"]
+license = "MIT"
+description = """
+A comprehensive Rust SDK for the TRON gRPC API,
+providing seamless integration with TRON full nodes.
+"""
+readme = "README.md"
+repository = "https://github.com/15ho/tron-sdk-rs"
 
 [dependencies]
 bs58 = "0.5.1"
