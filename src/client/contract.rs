@@ -86,15 +86,14 @@ mod test {
     #[tokio::test]
     async fn test_trc20_balance() {
         let mut cli = get_client().await;
-        let trx_balance = cli
+        let balance = cli
             .trc20_balance(
-                "TFysCB929XGezbnyumoFScyevjDggu3BPq",
-                "TLpMxTc52iuiDew4Qy7GYgpDggtBHbWejM",
+                "TD614vXXu2qH3VrMnkeKJSW4q7FUMVstar",
+                "TTvFE3RWS48yNhS6EaK3SGbBYycaEmV7Pw",
             )
             .await
             .expect("get trc20 balance err");
-        // TODO: assert
-        println!("trc20 balance: {:?}", trx_balance);
+        assert_eq!(BigInt::from(123455e6 as i64), balance)
     }
 
     #[tokio::test]
@@ -102,9 +101,9 @@ mod test {
         let mut cli = get_client().await;
         let ext = cli
             .trc20_transfer(
-                "TFysCB929XGezbnyumoFScyevjDggu3BPq",
-                "TE9t1ML5HujuVkGD8qTrWoDbTtMq8LWgzi",
-                "TLpMxTc52iuiDew4Qy7GYgpDggtBHbWejM",
+                "TXwUd9ywscLUZQcP5tPfqU266kbh3QmYxx",
+                "TD614vXXu2qH3VrMnkeKJSW4q7FUMVstar",
+                "TTvFE3RWS48yNhS6EaK3SGbBYycaEmV7Pw",
                 BigInt::from(100),
                 100000,
             )

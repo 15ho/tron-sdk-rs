@@ -2,3 +2,4 @@
 .vscode/
 tmp/
 google.api.rs
+Cargo.lock

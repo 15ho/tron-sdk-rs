@@ -40,24 +40,23 @@ mod test {
     #[tokio::test]
     async fn test_get_account_trx_balance() {
         let mut cli = get_client().await;
-        let trx_balance = cli
-            .get_account_trx_balance("TE9t1ML5HujuVkGD8qTrWoDbTtMq8LWgzi")
+        let balance = cli
+            .get_account_trx_balance("TXwUd9ywscLUZQcP5tPfqU266kbh3QmYxx")
             .await
             .expect("get account trx balance err");
 
-        // TODO: assert
-        println!("trx balance: {}", trx_balance);
+        assert!(balance == 456961060 || balance == 1456961060);
     }
 
     #[tokio::test]
     async fn test_get_account_resource_balance() {
         let mut cli = get_client().await;
         let res_balance = cli
-            .get_account_resource_balance("TFysCB929XGezbnyumoFScyevjDggu3BPq")
+            .get_account_resource_balance("TXwUd9ywscLUZQcP5tPfqU266kbh3QmYxx")
             .await
             .expect("get account trx balance err");
 
-        // TODO: assert
-        println!("resource balance: {:?}", res_balance);
+        assert!(res_balance.bandwidth == 600 || res_balance.bandwidth > 0);
+        assert!(res_balance.energy > 0);
     }
 }
