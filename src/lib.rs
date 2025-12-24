@@ -1,3 +1,4 @@
 pub mod client;
-pub mod tron;
+mod tron;
+pub use tron::protocol as api;
 pub mod utils;

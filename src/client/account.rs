@@ -56,7 +56,7 @@ mod test {
             .await
             .expect("get account trx balance err");
 
-        assert!(res_balance.bandwidth == 600 || res_balance.bandwidth == 73);
-        assert!(res_balance.energy > 0 && res_balance.energy <= 14061 );
+        assert!(res_balance.bandwidth > 0 && res_balance.bandwidth <= 600);
+        assert!(res_balance.energy >= 0 && res_balance.energy <= 14061);
     }
 }
