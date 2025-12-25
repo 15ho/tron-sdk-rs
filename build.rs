@@ -31,10 +31,10 @@ fn find_proto_files(root_dir: &Path) -> Vec<PathBuf> {
         };
 
         let path = entry.path();
-        if path.is_file() && path.extension().map_or(false, |ext| ext == "proto") {
-            if let Ok(relative_path) = path.strip_prefix(root_dir) {
-                proto_files.push(relative_path.to_path_buf());
-            }
+        if path.extension().is_some_and(|ext| ext == "proto")
+            && let Ok(relative_path) = path.strip_prefix(root_dir)
+        {
+            proto_files.push(relative_path.to_path_buf());
         }
     }
     proto_files

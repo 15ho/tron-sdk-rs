@@ -6,7 +6,7 @@ pub fn hex2sk(pk: &str) -> Result<secp256k1::SecretKey, String> {
         .try_into()
         .map_err(|_| "private key convert error".to_string())?;
 
-    Ok(secp256k1::SecretKey::from_byte_array(pk).map_err(|e| e.to_string())?)
+    secp256k1::SecretKey::from_byte_array(pk).map_err(|e| e.to_string())
 }
 
 pub fn sign_tx(tx_hash: Vec<u8>, sk: &secp256k1::SecretKey) -> Result<Vec<u8>, String> {

@@ -46,7 +46,7 @@ pub fn decode_address(address: &str) -> Result<Vec<u8>, String> {
         }
     }
 
-    return Ok(dec_address.to_vec());
+    Ok(dec_address.to_vec())
 }
 
 pub fn encode_address(mut public_key: Vec<u8>) -> String {
