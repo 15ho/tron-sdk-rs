@@ -21,13 +21,18 @@ jobs:
         with:
           version: "33.0"
       - run: cargo test --all-features -- --nocapture
-  
+
   clippy:
     name: cargo clippy
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v5
-        - run: rustup component add clippy
-        - uses: actions-rs-plus/clippy-check@v2.3.0
-          with:
-              args: --all-features
+      - uses: actions/checkout@v5
+        with:
+          submodules: "recursive"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "33.0"
+      - uses: actions-rs-plus/clippy-check@v2.3.0
+        with:
+          args: --all-features
