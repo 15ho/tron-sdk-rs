@@ -11,6 +11,7 @@ Add dependency in `Cargo.toml`
 [dependencies]
 tron-sdk-rs = { git = "https://github.com/15ho/tron-sdk-rs", branch = "main", version = "0.0.1" }
 tonic = "0.14"
+num-bigint = "0.4"
 ```
 Then, on your `main.rs`
 ```rust
@@ -44,3 +45,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+More examples can be found [here](examples/).

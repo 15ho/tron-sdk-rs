@@ -9,12 +9,12 @@ pub fn hex2sk(pk: &str) -> Result<secp256k1::SecretKey, String> {
     Ok(secp256k1::SecretKey::from_byte_array(pk).map_err(|e| e.to_string())?)
 }
 
-pub fn sign_tx(txid: Vec<u8>, sk: &secp256k1::SecretKey) -> Result<Vec<u8>, String> {
-    let txid: [u8; 32] = txid
+pub fn sign_tx(tx_hash: Vec<u8>, sk: &secp256k1::SecretKey) -> Result<Vec<u8>, String> {
+    let tx_hash: [u8; 32] = tx_hash
         .try_into()
         .map_err(|_| "txid convert error".to_string())?;
     let (rid, sig) = secp256k1::Secp256k1::new()
-        .sign_ecdsa_recoverable(Message::from_digest(txid), sk)
+        .sign_ecdsa_recoverable(Message::from_digest(tx_hash), sk)
         .serialize_compact();
     let mut sig = sig.to_vec();
     sig.push(rid as i32 as u8);

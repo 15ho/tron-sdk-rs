@@ -11,7 +11,7 @@ pub struct AccountResourceBalance {
 impl GrpcClient {
     pub async fn get_account_trx_balance(&mut self, address: &str) -> Result<i64, Status> {
         let mut req = Request::new(Account::default());
-        req.get_mut().address = Self::into_address(address)?;
+        req.get_mut().address = Self::parse_address(address)?.into_inner();
         let resp = self.inner.get_account(req).await?;
         Ok(resp.into_inner().balance)
     }
@@ -21,7 +21,7 @@ impl GrpcClient {
         address: &str,
     ) -> Result<AccountResourceBalance, Status> {
         let mut req = Request::new(Account::default());
-        req.get_mut().address = Self::into_address(address)?;
+        req.get_mut().address = Self::parse_address(address)?.into_inner();
 
         let resp = self.inner.get_account_resource(req).await?;
         let res = resp.into_inner();

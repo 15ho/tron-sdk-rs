@@ -7,6 +7,7 @@ pub struct GrpcClient {
 
 mod common;
 pub use common::CreatedAccount;
+pub use common::Address;
 
 mod account;
 pub use account::AccountResourceBalance;

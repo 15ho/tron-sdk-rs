@@ -1,10 +1,9 @@
-use num_bigint::BigInt;
+use num_bigint::{BigInt, Sign};
 use tonic::{Code, Request, Response, Status};
 
 use crate::{
     client::GrpcClient,
     tron::protocol::{TransactionExtention, TriggerSmartContract},
-    utils::bigint,
 };
 
 impl GrpcClient {
@@ -17,18 +16,21 @@ impl GrpcClient {
     ) -> Result<Response<TransactionExtention>, Status> {
         let mut req = Request::new(TriggerSmartContract::default());
         if let Some(from_address) = from {
-            req.get_mut().owner_address = Self::into_address(from_address)?;
+            req.get_mut().owner_address = Self::parse_address(from_address)?.into_inner();
         }
-        req.get_mut().contract_address = Self::into_address(contract)?;
+        req.get_mut().contract_address = Self::parse_address(contract)?.into_inner();
         req.get_mut().data = hex::decode(call_data)
             .map_err(|e| Status::new(Code::InvalidArgument, e.to_string()))?;
 
         if let Some(fee_limit) = writable {
             self.inner.trigger_contract(req).await.map(|mut resp| {
                 let ext = resp.get_mut();
+                let mut txid = ext.txid.clone();
                 if let Some(raw) = ext.transaction.as_mut().and_then(|tx| tx.raw_data.as_mut()) {
                     raw.fee_limit = fee_limit;
+                    txid = Self::get_tx_hash(raw);
                 }
+                ext.txid = txid;
                 resp
             })
         } else {
@@ -37,11 +39,11 @@ impl GrpcClient {
     }
 
     pub async fn trc20_balance(&mut self, from: &str, contract: &str) -> Result<BigInt, Status> {
-        let from_address = Self::into_address(from)?;
+        let from_address = Self::parse_address(from)?;
         // https://learnevm.com/chapters/abi-encoding/anatomy#the-anatomy-of-an-abi-encoded-function-call
         // call data = <function selector> + <parameters>
         // function balanceOf(address _owner) public view returns (uint256 balance)
-        let call_data = format!("70a08231{:0>64}", hex::encode(from_address));
+        let call_data = format!("70a08231{:0>64}", from_address.to_hex());
         let resp = self
             .contract_call(Some(from), contract, call_data, None)
             .await?;
@@ -52,7 +54,7 @@ impl GrpcClient {
                 call_res
             )));
         }
-        Ok(bigint::from_bytes(&call_res[0]))
+        Ok(BigInt::from_bytes_be(num_bigint::Sign::Plus, &call_res[0]))
     }
 
     pub async fn trc20_transfer(
@@ -63,13 +65,17 @@ impl GrpcClient {
         amount: BigInt,
         fee_limit: i64,
     ) -> Result<Response<TransactionExtention>, Status> {
-        let to_address = Self::into_address(to)?;
+        let to_address = Self::parse_address(to)?;
+        let (sign, amount) = amount.to_bytes_be();
+        if sign != Sign::Plus {
+            return Err(Status::invalid_argument("amount is not positive"))
+        }
 
         // function transfer(address _to, uint256 _value) public returns (bool success)
         let call_data = format!(
             "a9059cbb{:0>64}{:0>64}",
-            hex::encode(to_address),
-            hex::encode(amount.to_string())
+            to_address.to_hex(),
+            hex::encode(amount)
         );
 
         self.contract_call(Some(from), contract, call_data, Some(fee_limit))
