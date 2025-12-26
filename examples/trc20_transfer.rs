@@ -33,7 +33,6 @@ struct Args {
     /// Transaction fee limit
     #[arg(short, long, default_value_t = 100e6 as i64)]
     fee_limit: i64,
-
 }
 
 #[tokio::main]

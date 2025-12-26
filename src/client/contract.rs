@@ -19,18 +19,20 @@ impl GrpcClient {
             req.get_mut().owner_address = Self::parse_address(from_address)?.into_inner();
         }
         req.get_mut().contract_address = Self::parse_address(contract)?.into_inner();
-        req.get_mut().data = hex::decode(call_data)
-            .map_err(|e| Status::new(Code::InvalidArgument, e.to_string()))?;
+        req.get_mut().data = hex::decode(call_data).map_err(|e| {
+            Status::new(
+                Code::InvalidArgument,
+                format!("call data decode err: {}", e),
+            )
+        })?;
 
         if let Some(fee_limit) = writable {
             self.inner.trigger_contract(req).await.map(|mut resp| {
                 let ext = resp.get_mut();
-                let mut txid = ext.txid.clone();
                 if let Some(raw) = ext.transaction.as_mut().and_then(|tx| tx.raw_data.as_mut()) {
                     raw.fee_limit = fee_limit;
-                    txid = Self::get_tx_hash(raw);
+                    ext.txid = Self::get_tx_hash(raw);
                 }
-                ext.txid = txid;
                 resp
             })
         } else {
@@ -68,7 +70,7 @@ impl GrpcClient {
         let to_address = Self::parse_address(to)?;
         let (sign, amount) = amount.to_bytes_be();
         if sign != Sign::Plus {
-            return Err(Status::invalid_argument("amount is not positive"))
+            return Err(Status::invalid_argument("amount is not positive"));
         }
 
         // function transfer(address _to, uint256 _value) public returns (bool success)

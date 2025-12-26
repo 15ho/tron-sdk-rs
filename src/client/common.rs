@@ -5,7 +5,9 @@ use sha3::Keccak256;
 use tonic::Status;
 
 use crate::{
-    api, client::GrpcClient, utils::{self, bs58}
+    api,
+    client::GrpcClient,
+    utils::{self, bs58},
 };
 
 #[derive(Debug, Clone)]
